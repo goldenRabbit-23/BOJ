@@ -35,11 +35,6 @@ void run_case() {
     if (ID == 1) {
         cin >> N;
 
-        if (N == 1) {
-            cout << "1 1" << '\n';
-            return;
-        }
-
         string str = dec_to_bin(N);
         int p = 1, q = 1;
 
