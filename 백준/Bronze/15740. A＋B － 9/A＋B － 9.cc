@@ -81,13 +81,19 @@ int main() {
 
         reverse(res.begin(), res.end());
         res.erase(0, res.find_first_not_of('0'));
-        return res;
+        return res == "" ? "0" : res;
     };
 
     auto greater = [](string &a, string &b) -> bool {
         if (a.size() != b.size())
             return a.size() > b.size();
         return a > b;
+    };
+
+    auto less = [](string &a, string &b) -> bool {
+        if (a.size() != b.size())
+            return a.size() < b.size();
+        return a < b;
     };
 
     if (A.value[0] == '-') {
@@ -108,11 +114,11 @@ int main() {
         ans.negative = true;
         ans.value = add(A.value, B.value);
     } else if (!A.negative && B.negative) {  // A >= 0, B < 0
-        if (greater(A.value, B.value)) {  // |A| > |B|
-            ans.value = sub(A.value, B.value);
-        } else {  // |A| <= |B|
+        if (less(A.value, B.value)) {  // |A| < |B|
             ans.negative = true;
             ans.value = sub(B.value, A.value);
+        } else {  // |A| >= |B|
+            ans.value = sub(A.value, B.value);
         }
     } else if (A.negative && !B.negative) {  // A < 0, B >= 0
         if (greater(A.value, B.value)) {  // |A| > |B|
