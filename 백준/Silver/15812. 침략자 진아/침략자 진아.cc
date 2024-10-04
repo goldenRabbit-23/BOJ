@@ -23,10 +23,6 @@ public:
 };
 template<class Fun> decltype(auto) y_combinator(Fun &&fun) { return y_combinator_result<std::decay_t<Fun>>(std::forward<Fun>(fun)); }
 
-// North, East, West, South
-const int DR[] = {-1, 0, 0, 1};
-const int DC[] = {0, 1, -1, 0};
-
 const int INF = int(1e9) + 5;
 
 int main() {
@@ -40,51 +36,31 @@ int main() {
     for (auto &row : grid)
         cin >> row;
 
-    int houses = 0;
+    vector<pair<int, int>> houses;
 
-    for (int i = 0; i < N; i++)
-        for (int j = 0; j < M; j++)
-            if (grid[i][j] == '1')
-                houses++;
+    for (int r = 0; r < N; r++)
+        for (int c = 0; c < M; c++)
+            if (grid[r][c] == '1')
+                houses.emplace_back(r, c);
 
-    int ans = INF;
     vector<pair<int, int>> start_points;
 
     auto infect = [&]() -> int {
         auto [r1, c1] = start_points[0];
         auto [r2, c2] = start_points[1];
-        vector<vector<int>> time_grid(N, vector<int>(M, INF));
-        time_grid[r1][c1] = time_grid[r2][c2] = 0;
-        queue<pair<int, int>> q;
-        q.push({r1, c1}); q.push({r2, c2});
-        int infected = 0, elapsed = 0;
+        int max_elapsed = 0;
 
-        while (infected < houses && !q.empty()) {
-            auto [r, c] = q.front(); q.pop();
-
-            for (int d = 0; d < 4; d++) {
-                int nr = r + DR[d];
-                int nc = c + DC[d];
-
-                // out of bounds
-                if (nr < 0 || nr >= N || nc < 0 || nc >= M)
-                    continue;
-
-                // already visited
-                if (time_grid[nr][nc] < INF)
-                    continue;
-
-                // update neighbor cell infection time
-                elapsed = time_grid[nr][nc] = time_grid[r][c] + 1;
-                q.push({nr, nc});
-
-                if (grid[nr][nc] == '1')
-                    infected++;
-            }
+        for (auto [r, c] : houses) {
+            int min_elapsed_each = INF;
+            min_elapsed_each = min(min_elapsed_each, abs(r - r1) + abs(c - c1));
+            min_elapsed_each = min(min_elapsed_each, abs(r - r2) + abs(c - c2));
+            max_elapsed = max(max_elapsed, min_elapsed_each);
         }
 
-        return elapsed;
+        return max_elapsed;
     };
+
+    int ans = INF;
 
     // cell_n ∈ [0, N * M - 1]
     y_combinator([&](auto self, int prev, int cnt) -> void {
